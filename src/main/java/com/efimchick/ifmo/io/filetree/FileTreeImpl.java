@@ -25,7 +25,7 @@ public class FileTreeImpl implements FileTree {
         File file = new File(String.valueOf(path));
         Optional<String> result = Optional.empty();
         if (file.isFile()) {
-            result = Optional.of(getFileData(file));
+            result = Optional.of(printFileData(file));
         }
         if (file.isDirectory()) {
             result = Optional.of(printFileTree(file, new ArrayList<>()));
@@ -50,8 +50,14 @@ public class FileTreeImpl implements FileTree {
         return directory.toString();
     }
 
-    private String addNotRootFilePathInformation(boolean isParentFolderLastInDirectoryList) {
-        return isParentFolderLastInDirectoryList ? LAST_FILE_IN_DIRECTORY : NEW_DIRECTORY_SYMBOL;
+    private String addNotRootFilePathInformation(boolean isFileLastInDirectory) {
+        String pathInformation;
+        if (isFileLastInDirectory) {
+            pathInformation = LAST_FILE_IN_DIRECTORY;
+        } else {
+            pathInformation = NEW_DIRECTORY_SYMBOL;
+        }
+        return pathInformation;
     }
 
     private String addChildFileInformation (File file, boolean isFileLastInDirectory,
@@ -59,8 +65,8 @@ public class FileTreeImpl implements FileTree {
         StringBuilder directory = new StringBuilder();
         directory.append(addFilePathInformation(isParentFolderLastInDirectoryList));
         if (file.isFile()) {
-            directory.append(isFileLastInDirectory ? LAST_FILE_IN_DIRECTORY : NEW_DIRECTORY_SYMBOL);
-            directory.append(getFileData(file));
+            directory.append(addNotRootFilePathInformation(isFileLastInDirectory)); //ifelse
+            directory.append(printFileData(file));
         } else {
             ArrayList<Boolean> childIsParentFolderLastInDirectoryList =
                     new ArrayList<>(isParentFolderLastInDirectoryList);
@@ -89,7 +95,7 @@ public class FileTreeImpl implements FileTree {
         return currentFolder.getName() + WORD_DELIMITIER + getFolderSize(currentFolder) + SIZE_MEASURE;
     }
 
-    private String getFileData(File file) {
+    private String printFileData(File file) {
         return file.getName() + WORD_DELIMITIER + file.length() + SIZE_MEASURE;
     }
 
@@ -106,10 +112,9 @@ public class FileTreeImpl implements FileTree {
     }
 
     private List<File> sortFiles(File[] folder) {
-        Arrays.sort(folder);
-        Set<File> sorted = new TreeSet<>(Comparator.
+        Set<File> sortedFileSet = new TreeSet<>(Comparator.
                 comparing((File file) -> !file.isDirectory()).thenComparing(File::compareTo));
-        sorted.addAll(Arrays.stream(folder).collect(Collectors.toList()));
-        return new ArrayList<>(sorted);
+        sortedFileSet.addAll(Arrays.stream(folder).collect(Collectors.toList()));
+        return new ArrayList<>(sortedFileSet);
     }
 }
