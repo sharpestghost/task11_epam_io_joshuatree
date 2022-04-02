@@ -6,6 +6,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Comparator;
 import java.util.List;
+import java.util.Locale;
 import java.util.Optional;
 import java.util.Set;
 import java.util.TreeSet;
@@ -112,7 +113,7 @@ public class FileTreeImpl implements FileTree {
 
     private List<File> sortFiles(File[] folder) {
         Set<File> sortedFileSet = new TreeSet<>(Comparator.comparing((File file) -> !file.isDirectory()).
-                thenComparing((File file) -> file.toString().toUpperCase()));
+                thenComparing((File file) -> file.toString().toUpperCase(Locale.CANADA)));
         sortedFileSet.addAll(Arrays.stream(folder).collect(Collectors.toList()));
         return new ArrayList<>(sortedFileSet);
     }
