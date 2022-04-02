@@ -4,8 +4,12 @@ import java.io.File;
 import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Comparator;
 import java.util.List;
 import java.util.Optional;
+import java.util.Set;
+import java.util.TreeSet;
+import java.util.stream.Collectors;
 
 public class FileTreeImpl implements FileTree {
 
@@ -64,10 +68,9 @@ public class FileTreeImpl implements FileTree {
             directory.append(addNotRootFilePathInformation(isFileLastInDirectory)); //ifelse
             directory.append(printFileData(file));
         } else {
-            ArrayList<Boolean> childIsParentFolderLastInDirectoryList =
-                    new ArrayList<>(isParentFolderLastInDirectoryList);
-            childIsParentFolderLastInDirectoryList.add(isFileLastInDirectory);
-            directory.append(printFileTree(file, childIsParentFolderLastInDirectoryList));
+            isParentFolderLastInDirectoryList.add(isFileLastInDirectory);
+            directory.append(printFileTree(file, isParentFolderLastInDirectoryList));
+            isParentFolderLastInDirectoryList.remove(isParentFolderLastInDirectoryList.size() - 1);
         }
         return directory.toString();
     }
@@ -108,17 +111,9 @@ public class FileTreeImpl implements FileTree {
     }
 
     private List<File> sortFiles(File[] folder) {
-        Arrays.sort(folder);
-        List<File> sortedFileList = new ArrayList<>();
-        int currentDirectoryIndex = 0;
-        for (File element : folder) {
-            if (element.isDirectory()) {
-                sortedFileList.add(currentDirectoryIndex, element);
-                currentDirectoryIndex++;
-            } else {
-                sortedFileList.add(element);
-            }
-        }
-        return sortedFileList;
+        Set<File> sortedFileSet = new TreeSet<>(Comparator.comparing((File file) -> !file.isDirectory()).
+                thenComparing((File file) -> file.toString().toUpperCase()));
+        sortedFileSet.addAll(Arrays.stream(folder).collect(Collectors.toList()));
+        return new ArrayList<>(sortedFileSet);
     }
 }
