@@ -4,12 +4,8 @@ import java.io.File;
 import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.Comparator;
 import java.util.List;
 import java.util.Optional;
-import java.util.Set;
-import java.util.TreeSet;
-import java.util.stream.Collectors;
 
 public class FileTreeImpl implements FileTree {
 
@@ -39,7 +35,7 @@ public class FileTreeImpl implements FileTree {
             directory.append(addNotRootFilePathInformation(isParentFolderLastInDirectoryList.
                     get(isParentFolderLastInDirectoryList.size() - 1)));
         }
-        directory.append(getFolderSizeData(currentFolder));
+        directory.append(printFolderData(currentFolder));
         List<File> files = sortFiles(currentFolder.listFiles());
         int count = files.size();
         for (int i = 0; i < count; i++) {
@@ -91,7 +87,7 @@ public class FileTreeImpl implements FileTree {
         return folderSize;
     }
 
-    private String getFolderSizeData(File currentFolder) {
+    private String printFolderData(File currentFolder) {
         return currentFolder.getName() + WORD_DELIMITIER + getFolderSize(currentFolder) + SIZE_MEASURE;
     }
 
@@ -112,9 +108,17 @@ public class FileTreeImpl implements FileTree {
     }
 
     private List<File> sortFiles(File[] folder) {
-        Set<File> sortedFileSet = new TreeSet<>(Comparator.
-                comparing((File file) -> !file.isDirectory()).thenComparing(File::compareTo));
-        sortedFileSet.addAll(Arrays.stream(folder).collect(Collectors.toList()));
-        return new ArrayList<>(sortedFileSet);
+        Arrays.sort(folder);
+        List<File> sortedFileList = new ArrayList<>();
+        int currentDirectoryIndex = 0;
+        for (File element : folder) {
+            if (element.isDirectory()) {
+                sortedFileList.add(currentDirectoryIndex, element);
+                currentDirectoryIndex++;
+            } else {
+                sortedFileList.add(element);
+            }
+        }
+        return sortedFileList;
     }
 }
