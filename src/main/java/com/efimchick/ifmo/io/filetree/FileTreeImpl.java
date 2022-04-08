@@ -8,8 +8,6 @@ import java.util.Comparator;
 import java.util.List;
 import java.util.Locale;
 import java.util.Optional;
-import java.util.Set;
-import java.util.TreeSet;
 import java.util.stream.Collectors;
 
 public class FileTreeImpl implements FileTree {
@@ -66,7 +64,7 @@ public class FileTreeImpl implements FileTree {
         StringBuilder directory = new StringBuilder();
         directory.append(addFilePathInformation(isParentFolderLastInDirectoryList));
         if (file.isFile()) {
-            directory.append(addNotRootFilePathInformation(isFileLastInDirectory)); //ifelse
+            directory.append(addNotRootFilePathInformation(isFileLastInDirectory));
             directory.append(printFileData(file));
         } else {
             isParentFolderLastInDirectoryList.add(isFileLastInDirectory);
@@ -112,9 +110,9 @@ public class FileTreeImpl implements FileTree {
     }
 
     private List<File> sortFiles(File[] folder) {
-        Set<File> sortedFileSet = new TreeSet<>(Comparator.comparing((File file) -> !file.isDirectory()).
-                thenComparing((File file) -> file.toString().toUpperCase(Locale.CANADA)));
-        sortedFileSet.addAll(Arrays.stream(folder).collect(Collectors.toList()));
-        return new ArrayList<>(sortedFileSet);
+        Comparator<File> directoryComparator = Comparator.comparing((File file) -> !file.isDirectory()).
+                thenComparing((File file) -> file.toString().toUpperCase(Locale.CANADA));
+        Arrays.sort(folder, directoryComparator);
+        return Arrays.stream(folder).collect(Collectors.toList());
     }
 }
