@@ -8,7 +8,6 @@ import java.util.Comparator;
 import java.util.List;
 import java.util.Locale;
 import java.util.Optional;
-import java.util.stream.Collectors;
 
 public class FileTreeImpl implements FileTree {
 
@@ -16,7 +15,7 @@ public class FileTreeImpl implements FileTree {
     private static final String NEW_FILE_IN_DIRECTORY_SYMBOL = "│  ";
     private static final String LAST_FILE_IN_DIRECTORY = "└─ ";
     private static final String BLANK_SPACE = "   ";
-    private static final String WORD_DELIMITIER = " ";
+    private static final String WORD_DELIMITER = " ";
     private static final String SIZE_MEASURE = " bytes";
 
     @Override
@@ -25,8 +24,7 @@ public class FileTreeImpl implements FileTree {
         Optional<String> result = Optional.empty();
         if (file.isFile()) {
             result = Optional.of(printFileData(file));
-        }
-        if (file.isDirectory()) {
+        } else if (file.isDirectory()) {
             result = Optional.of(printFileTree(file, new ArrayList<>()));
         }
         return result;
@@ -39,11 +37,14 @@ public class FileTreeImpl implements FileTree {
                     get(isParentFolderLastInDirectoryList.size() - 1)));
         }
         directory.append(printFolderData(currentFolder));
-        List<File> files = sortFiles(currentFolder.listFiles());
-        int count = files.size();
+        File[] files = sortFiles(currentFolder.listFiles());
+        int count = 0;
+        if (files != null) {
+            count = files.length;
+        }
         for (int i = 0; i < count; i++) {
             boolean isFileLastInDirectory = count == i + 1;
-            directory.append(addChildFileInformation(files.get(i),
+            directory.append(addChildFileInformation(files[i],
                     isFileLastInDirectory, isParentFolderLastInDirectoryList));
         }
         return directory.toString();
@@ -90,11 +91,11 @@ public class FileTreeImpl implements FileTree {
     }
 
     private String printFolderData(File currentFolder) {
-        return currentFolder.getName() + WORD_DELIMITIER + getFolderSize(currentFolder) + SIZE_MEASURE;
+        return currentFolder.getName() + WORD_DELIMITER + getFolderSize(currentFolder) + SIZE_MEASURE;
     }
 
     private String printFileData(File file) {
-        return file.getName() + WORD_DELIMITIER + file.length() + SIZE_MEASURE;
+        return file.getName() + WORD_DELIMITER + file.length() + SIZE_MEASURE;
     }
 
     private String addFilePathInformation(List<Boolean> isParentFolderLastInDirectoryList) {
@@ -109,10 +110,10 @@ public class FileTreeImpl implements FileTree {
         return directoryPath.toString();
     }
 
-    private List<File> sortFiles(File[] folder) {
+    private File[] sortFiles(File[] folder) {
         Comparator<File> directoryComparator = Comparator.comparing((File file) -> !file.isDirectory()).
                 thenComparing((File file) -> file.toString().toUpperCase(Locale.CANADA));
         Arrays.sort(folder, directoryComparator);
-        return Arrays.stream(folder).collect(Collectors.toList());
+        return folder;
     }
 }
