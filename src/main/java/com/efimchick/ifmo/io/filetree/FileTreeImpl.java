@@ -21,11 +21,13 @@ public class FileTreeImpl implements FileTree {
     @Override
     public Optional<String> tree(Path path) {
         File file = new File(String.valueOf(path));
-        Optional<String> result = Optional.empty();
+        Optional<String> result;
         if (file.isFile()) {
             result = Optional.of(printFileData(file));
         } else if (file.isDirectory()) {
             result = Optional.of(printFileTree(file, new ArrayList<>()));
+        } else {
+            result = Optional.empty();
         }
         return result;
     }
